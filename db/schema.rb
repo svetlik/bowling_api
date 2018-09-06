@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_09_06_081637) do
+ActiveRecord::Schema.define(version: 2018_09_06_135358) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,6 +20,8 @@ ActiveRecord::Schema.define(version: 2018_09_06_081637) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "frames", default: [], array: true
+    t.integer "current_frame", default: 0
+    t.integer "throw_counter", default: 0
   end
 
 end
