@@ -1,21 +1,23 @@
 class Api::GamesController < ApplicationController
   def create
+    Game.destroy_all
     @game = Game.create
 
     render json: @game, status: :created
   end
 
   def show
-    @game = Game.find(params[:id])
+    @game = Game.last
 
     render json: @game, status: :ok
   end
 
   def update
-    debugger
-    @game = Game.find(params[:id])
+    @game = Game.last
 
     # if this number is a valid score for this throw
+    @game.throw(update_params[:score])
+
     if @game.update(update_params)
       render json: @game, status: :updated
     else
@@ -26,6 +28,6 @@ class Api::GamesController < ApplicationController
   private
 
   def update_params
-    params.require(:game).permit(:score)
+    params.permit(:score)
   end
 end
