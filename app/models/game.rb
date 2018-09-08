@@ -45,6 +45,7 @@ class Game < ApplicationRecord
   end
 
   def add_score_to_frame(throw_score)
+    validate(throw_score)
     increase_throw_counter
     if cur_frame[0].nil?
       cur_frame[0] = throw_score.to_i
@@ -53,6 +54,9 @@ class Game < ApplicationRecord
         increase_throw_counter
       end
     else
+      if throw_score.to_i > 10 - cur_frame[0].to_i
+        puts 'error'
+      end
       cur_frame[1] = throw_score.to_i
       if cur_frame[0].to_i + cur_frame[1].to_i == 10
         puts 'spare'
@@ -69,5 +73,9 @@ class Game < ApplicationRecord
 
   def game_over?
     self.current_frame >= 10
+  end
+
+  def validate(throw_score)
+    puts 'error' unless ((/\A\d+\z/) =~ throw_score) == 0 && (1..10).include?(throw_score.to_i)
   end
 end
