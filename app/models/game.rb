@@ -7,6 +7,7 @@ class Game < ApplicationRecord
     self.frames = Array.new(10){Array.new(3)}
     self.throw_counter = 0
     self.current_frame = 0
+    self.score = 0
 
     self.save
   end

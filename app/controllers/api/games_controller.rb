@@ -16,7 +16,7 @@ class Api::GamesController < ApplicationController
     @game = Game.last
 
     # if this number is a valid score for this throw
-    @game.throw(update_params[:score])
+    @game.throw(update_params[:roll_score])
 
     if @game.update(update_params)
       render json: @game, status: :updated
@@ -28,6 +28,6 @@ class Api::GamesController < ApplicationController
   private
 
   def update_params
-    params.permit(:score)
+    params.permit(:roll_score)
   end
 end
