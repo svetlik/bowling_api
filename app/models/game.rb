@@ -44,6 +44,14 @@ class Game < ApplicationRecord
     self.frames[current_frame]
   end
 
+  def prev_frame
+    self.frames[current_frame-1]
+  end
+
+  def prev_prev_frame
+    self.frames[current_frame-2]
+  end
+
   def add_score_to_frame(throw_score)
     validate(throw_score)
     increase_throw_counter
@@ -51,6 +59,7 @@ class Game < ApplicationRecord
       cur_frame[0] = throw_score.to_i
       if cur_frame[0].to_i == 10
         puts 'strike'
+        # fix: 10, 10, 3 outputs [["10","10","3"],["10","3",null],["3",null,null]
         increase_throw_counter
       end
     else
@@ -61,6 +70,17 @@ class Game < ApplicationRecord
       if cur_frame[0].to_i + cur_frame[1].to_i == 10
         puts 'spare'
       end
+    end
+
+    # fix: accommodate last frame calculations
+    if prev_frame.any? && prev_frame[0] == '10'
+      prev_frame[1].nil? ? prev_frame[1] = throw_score.to_i : prev_frame[2] = throw_score.to_i
+    end
+    if prev_frame.any? && prev_frame[0].to_i + prev_frame[1].to_i == 10
+      prev_frame[2] = throw_score.to_i
+    end
+    if prev_prev_frame.any? && prev_prev_frame[0] == '10' && prev_frame[0] == '10'
+      prev_prev_frame[2] = throw_score.to_i
     end
   end
 
