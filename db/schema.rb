@@ -20,7 +20,7 @@ ActiveRecord::Schema.define(version: 2018_09_08_140254) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "frames", default: [], array: true
-    t.integer "current_frame", default: 0
+    t.integer "frame_counter", default: 0
     t.integer "throw_counter", default: 0
     t.integer "roll_score"
   end

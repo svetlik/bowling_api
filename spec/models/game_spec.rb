@@ -11,7 +11,7 @@ RSpec.describe Game, type: :model do
     end
 
     it 'starts at frame 0' do
-      expect(game.current_frame).to eq(0)
+      expect(game.frame_counter).to eq(0)
     end
 
     it 'starts with score 0' do
@@ -26,22 +26,22 @@ RSpec.describe Game, type: :model do
   context 'input' do
     it 'does not allow a number lower than 0' do
       throw_count = '-4'
-      expect{ game.throw(throw_count) }.to raise_error('invalid input')
+      expect{ game.throw(throw_count) }.to raise_error('Throw score cannot be a non-integer symbol')
     end
 
     it 'does not allow a number higher than 10' do
       throw_count = '12'
-      expect{ game.throw(throw_count) }.to raise_error('invalid input')
+      expect{ game.throw(throw_count) }.to raise_error('Throw score cannot be more than 10')
     end
 
     it 'does not allow a floating point number' do
       throw_count = '4.3'
-      expect{ game.throw(throw_count) }.to raise_error('invalid input')
+      expect{ game.throw(throw_count) }.to raise_error('Throw score cannot be a non-integer symbol')
     end
 
     it 'does not allow a symbol other than integers' do
       throw_count = 'f'
-      expect { game.throw(throw_count) }.to raise_error('invalid input')
+      expect { game.throw(throw_count) }.to raise_error('Throw score cannot be a non-integer symbol')
     end
   end
 
@@ -83,27 +83,59 @@ RSpec.describe Game, type: :model do
     it "checks that in case of a spare at the last round, one more throw is granted" do
       9.times do
         game.throw('1')
-        game.throw('1')
+        game.throw('2')
       end
 
       game.throw('5')
       game.throw('5')
       game.throw('5')
 
-      expect(game.score).to eq(33)
+      expect(game.score).to eq(42)
     end
 
     it "checks that in case of a strike at the last round, one more throw is granted" do
       9.times do
-        game.throw('1')
-        game.throw('1')
+        game.throw('5')
+        game.throw('2')
       end
 
       game.throw('10')
       game.throw('4')
       game.throw('5')
 
-      expect(game.score).to eq(37)
+      expect(game.score).to eq(82)
+    end
+
+    it "emulate sample game" do
+      # frame 0
+      game.throw('10')
+      # frame 1
+      game.throw('7')
+      game.throw('3')
+      # frame 2
+      game.throw('9')
+      game.throw('0')
+      # frame 3
+      game.throw('10')
+      # frame 4
+      game.throw('0')
+      game.throw('8')
+      # frame 5
+      game.throw('8')
+      game.throw('2')
+      # frame 6
+      game.throw('0')
+      game.throw('6')
+      # frame 7
+      game.throw('10')
+      # frame 8
+      game.throw('10')
+      # frame 9
+      game.throw('10')
+      game.throw('8')
+      game.throw('1')
+
+      expect(game.score).to eq(167)
     end
   end
 end
