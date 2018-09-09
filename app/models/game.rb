@@ -28,7 +28,7 @@ class Game < ApplicationRecord
   def increase_throw_counter
     if self.throw_counter == 2
       self.throw_counter = 1
-      move_frame(1)
+      move_frame(1) unless cur_frame == self.frames[9]
     else
       self.throw_counter += 1
     end
@@ -55,16 +55,22 @@ class Game < ApplicationRecord
   def add_score_to_frame(throw_score)
     validate(throw_score)
     increase_throw_counter
+    if last_frame? && !cur_frame[1].nil? && (cur_frame[0].to_i == 10 || cur_frame[0] + cur_frame[1] == 10)
+      cur_frame[2] = throw_score.to_i
+      puts 'game over'
+    end
     if cur_frame[0].nil?
       cur_frame[0] = throw_score.to_i
       if cur_frame[0].to_i == 10
         puts 'strike'
-        # fix: 10, 10, 3 outputs [["10","10","3"],["10","3",null],["3",null,null]
-        increase_throw_counter
+        increase_throw_counter unless cur_frame == self.frames[9]
       end
     else
-      if throw_score.to_i > 10 - cur_frame[0].to_i
-        puts 'error'
+      if throw_score.to_i > 10 - cur_frame[0].to_i && cur_frame != self.frames[9]
+        self.throw_counter = 1
+        self.save
+
+        raise Exception.new("Pin number cannot exceed #{10 - cur_frame[0].to_i}")
       end
       cur_frame[1] = throw_score.to_i
       if cur_frame[0].to_i + cur_frame[1].to_i == 10
@@ -72,7 +78,6 @@ class Game < ApplicationRecord
       end
     end
 
-    # fix: accommodate last frame calculations
     if prev_frame.any? && prev_frame[0] == '10'
       prev_frame[1].nil? ? prev_frame[1] = throw_score.to_i : prev_frame[2] = throw_score.to_i
     end
@@ -84,15 +89,17 @@ class Game < ApplicationRecord
     end
   end
 
+  def last_frame?
+    cur_frame == self.frames[9]
+  end
+
   def add_to_overall_score(throw_score)
-    puts "before #{self.score}"
-    self.score = self.score + throw_score.to_i
-    puts "after #{self.score}"
+    self.score = self.frames.flatten.compact.map{|el| el.to_i }.sum
     self.save
   end
 
   def game_over?
-    self.current_frame >= 10
+    cur_frame == self.frames[9] && (cur_frame[2].present? || ([cur_frame[0], cur_frame[1]].all? && cur_frame[0].to_i + cur_frame[1].to_i < 10))
   end
 
   def validate(throw_score)
