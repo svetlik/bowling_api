@@ -56,6 +56,7 @@ class Game < ApplicationRecord
     validate(throw_score)
     increase_throw_counter
     if last_frame? && !cur_frame[1].nil? && (cur_frame[0].to_i == 10 || cur_frame[0] + cur_frame[1] == 10)
+      debugger
       cur_frame[2] = throw_score.to_i
       puts 'game over'
     end
@@ -103,6 +104,6 @@ class Game < ApplicationRecord
   end
 
   def validate(throw_score)
-    puts 'error' unless ((/\A\d+\z/) =~ throw_score) == 0 && (1..10).include?(throw_score.to_i)
+    raise Exception.new('invalid input') unless ((/\A\d+\z/) =~ throw_score) == 0 && (1..10).include?(throw_score.to_i)
   end
 end
