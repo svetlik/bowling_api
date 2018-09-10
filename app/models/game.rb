@@ -70,7 +70,7 @@ class Game < ApplicationRecord
         self.throw_counter = 1
         self.save
 
-        raise Exception.new("Pin number cannot exceed #{10 - current_frame[0].to_i}")
+        raise(PinsExceedValidAmountError, "Pin number cannot exceed #{10 - current_frame[0].to_i}")
       end
       current_frame[1] = throw_score.to_i
     else
@@ -146,11 +146,17 @@ class Game < ApplicationRecord
 
   def validate(throw_score)
     if ((/\A\d+\z/) =~ throw_score) != 0
-      raise Exception.new('Throw score cannot be a non-integer symbol')
+      raise(InvalidInputError, 'Throw score cannot be a non-integer symbol')
     elsif throw_score.to_i < 0
-      raise Exception.new('Throw score cannot be less than 0')
+      raise(InvalidInputError, 'Throw score cannot be less than 0')
     elsif throw_score.to_i > 10
-      raise Exception.new('Throw score cannot be more than 10')
+      raise(InvalidInputError, 'Throw score cannot be more than 10')
     end
   end
+end
+
+class PinsExceedValidAmountError < StandardError
+end
+
+class InvalidInputError < StandardError
 end

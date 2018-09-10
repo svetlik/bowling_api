@@ -15,14 +15,17 @@ class Api::GamesController < ApplicationController
   def update
     @game = Game.last
 
-    # if this number is a valid score for this throw
     @game.throw(update_params[:roll_score])
 
     if @game.update(update_params)
-      render json: @game, status: :updated
+      render json: @game, status: 204
     else
-      render json: { errors: @game.errors }, status: 422
+      render json: { message: "Cannot find game." }, status: 404
     end
+  end
+
+  rescue InvalidInputError, PinsExceedValidAmountError => e
+    render json: {message: e.message}, status: 422
   end
 
   private
@@ -30,4 +33,3 @@ class Api::GamesController < ApplicationController
   def update_params
     params.permit(:roll_score)
   end
-end
