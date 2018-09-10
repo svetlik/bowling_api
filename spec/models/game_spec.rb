@@ -107,6 +107,8 @@ RSpec.describe Game, type: :model do
     end
 
     it "emulate sample game" do
+      # http://slocums.homestead.com/gamescore.html
+
       # frame 0
       game.throw('10')
       # frame 1

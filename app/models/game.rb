@@ -53,6 +53,7 @@ class Game < ApplicationRecord
     validate(throw_score)
     increase_throw_counter
 
+    # extract all last frame calculations to a separate method
     if last_frame_spare_or_strike(current_frame)
       current_frame[2] = throw_score.to_i
       puts 'game over'
@@ -62,7 +63,7 @@ class Game < ApplicationRecord
       current_frame[0] = throw_score.to_i
       if current_frame[0].to_i == 10
         puts 'strike'
-        increase_throw_counter unless last_frame?
+        increase_throw_counter
       end
     elsif current_frame != self.frames[9]
       if throw_score.to_i > 10 - current_frame[0].to_i
@@ -72,16 +73,30 @@ class Game < ApplicationRecord
         raise Exception.new("Pin number cannot exceed #{10 - current_frame[0].to_i}")
       end
       current_frame[1] = throw_score.to_i
+    else
+      if current_frame[1].present?
+        current_frame[2] = throw_score.to_i
+      else
+        current_frame[1] = throw_score.to_i
+      end
     end
 
+    update_previous_frames(throw_score)
+  end
+
+  def update_previous_frames(throw_score)
     if previous_frame.any? && strike?(previous_frame)
-      previous_frame[1].nil? ? previous_frame[1] = throw_score.to_i : previous_frame[2] = throw_score.to_i
+      if previous_frame[1].nil?
+        previous_frame[1] = throw_score.to_i
+      else
+        previous_frame[2] = throw_score.to_i unless current_frame[2].present?
+      end
     end
     if previous_frame.any? && spare?(previous_frame)
       previous_frame[2] = throw_score.to_i unless current_frame[1].present?
     end
     if two_frames_ago.any? && strike?(two_frames_ago) && strike?(previous_frame)
-      two_frames_ago[2] = throw_score.to_i
+      two_frames_ago[2] = throw_score.to_i unless current_frame[1].present?
     end
   end
 
