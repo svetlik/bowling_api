@@ -8,8 +8,14 @@ class Api::GamesController < ApplicationController
 
   def show
     @game = Game.last
+    game_details = {
+      score: @game.score,
+      frames: @game.frames,
+      last_frame: @game.frame_counter,
+      last_roll_score: @game.roll_score
+    }
 
-    render json: @game, status: :ok
+    render json: game_details, status: :ok
   end
 
   def update

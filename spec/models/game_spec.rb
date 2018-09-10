@@ -1,7 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe Game, type: :model do
-
   let(:game) { Game.create }
 
   context 'new game' do
@@ -16,10 +15,6 @@ RSpec.describe Game, type: :model do
 
     it 'starts with score 0' do
       expect(game.score).to eq(0)
-    end
-
-    it 'ends after the last throw for the last frame' do
-      #
     end
   end
 

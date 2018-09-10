@@ -13,7 +13,7 @@ class Game < ApplicationRecord
   end
 
   def throw(throw_score)
-    puts 'game over' if game_over?
+    raise(GameOverError, "Game Over") if game_over?
     game_score(throw_score)
   end
 
@@ -56,13 +56,11 @@ class Game < ApplicationRecord
     # extract all last frame calculations to a separate method
     if last_frame_spare_or_strike(current_frame)
       current_frame[2] = throw_score.to_i
-      puts 'game over'
     end
 
     if empty?(current_frame)
       current_frame[0] = throw_score.to_i
       if current_frame[0].to_i == 10
-        puts 'strike'
         increase_throw_counter
       end
     elsif current_frame != self.frames[9]
