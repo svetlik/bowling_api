@@ -4,7 +4,7 @@ RSpec.describe :games, type: :request do
   context 'POST /games' do
     it 'creates a game' do
       post api_games_path
-      expect(response).to have_http_status(200)
+      expect(response).to have_http_status(201)
     end
   end
 
@@ -15,7 +15,7 @@ RSpec.describe :games, type: :request do
       frames = Array.new(10){Array.new(3)}
       get api_game_path(game)
       expect(response).to have_http_status(200)
-      expect(JSON.parse response.body).to eq({"frames"=>frames, "id"=>Game.last.id, "last_frame"=>0, "last_roll_score"=>nil, "score"=>0})
+      expect(JSON.parse response.body).to eq({"frames"=>frames, "id"=>Game.last.id, "current_frame"=>1, "last_roll_score"=>nil, "score"=>0})
     end
   end
 

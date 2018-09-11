@@ -1,5 +1,5 @@
 class Game < ApplicationRecord
-  validates :score, format: { with: /\A\d+\z/, message: "Integer only. No sign allowed." }
+  validates :score, format: { with: /\A\d+\z/, message: "Integer only. No signs allowed." }
 
   after_create :initialize_frames
 
@@ -13,7 +13,7 @@ class Game < ApplicationRecord
   end
 
   def throw(throw_score)
-    raise(GameOverError, "Game Over") if game_over?
+    raise(GameOverError, "Game has already ended.") if game_over?
     game_score(throw_score)
   end
 
@@ -157,4 +157,7 @@ class PinsExceedValidAmountError < StandardError
 end
 
 class InvalidInputError < StandardError
+end
+
+class GameOverError < StandardError
 end

@@ -2,7 +2,7 @@ class Api::GamesController < ApplicationController
   def create
     @game = Game.create
 
-    render json: { id: @game.id } , status: :ok
+    render json: { id: @game.id } , status: :created
   end
 
   def show
@@ -26,7 +26,7 @@ class Api::GamesController < ApplicationController
     if @game.update(update_params)
       render json: @game, status: :no_content
     else
-      render json: { message: "Cannot find game." }, status: 404
+      render json: { message: "Game failed to update." }, status: 404
     end
   end
 
