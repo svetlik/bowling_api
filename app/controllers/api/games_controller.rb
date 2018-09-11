@@ -1,14 +1,14 @@
 class Api::GamesController < ApplicationController
   def create
-    Game.destroy_all
     @game = Game.create
 
-    render json: @game, status: :created
+    render json: { id: @game.id } , status: :ok
   end
 
   def show
-    @game = Game.last
+    @game = Game.find(params[:id])
     game_details = {
+      id: @game.id,
       score: @game.score,
       frames: @game.frames,
       last_frame: @game.frame_counter,
@@ -19,19 +19,19 @@ class Api::GamesController < ApplicationController
   end
 
   def update
-    @game = Game.last
+    @game = Game.find(params[:id])
 
     @game.throw(update_params[:roll_score])
 
     if @game.update(update_params)
-      render json: @game, status: 204
+      render json: @game, status: :no_content
     else
       render json: { message: "Cannot find game." }, status: 404
     end
   end
 
   rescue InvalidInputError, PinsExceedValidAmountError => e
-    render json: {message: e.message}, status: 422
+    render json: {message: e.message}, status: :unprocessable_entity
   end
 
   private
