@@ -24,7 +24,7 @@ RSpec.describe :games, type: :request do
 
     it 'updates game score' do
       put api_game_path(game, "roll_score" => "3")
-      expect(response).to have_http_status(204)
+      expect(response).to have_http_status(200)
       expect(Game.last.score).to eq 3
     end
 

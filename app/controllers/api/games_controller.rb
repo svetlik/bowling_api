@@ -19,19 +19,20 @@ class Api::GamesController < ApplicationController
   end
 
   def update
+    begin
     @game = Game.find(params[:id])
 
     @game.throw(update_params[:roll_score])
 
     if @game.update(update_params)
-      render json: @game, status: :no_content
+      render json: { message: "Game score has been updated successfully."}, status: :ok
     else
-      render json: { message: "Game failed to update." }, status: 404
+      render json: { message: "Game failed to update." }, status: :not_found
     end
-  end
 
-  rescue InvalidInputError, PinsExceedValidAmountError => e
-    render json: {message: e.message}, status: :unprocessable_entity
+    rescue GameOverError, InvalidInputError, PinsExceedValidAmountError => e
+      render json: {message: e.message}, status: :unprocessable_entity
+    end
   end
 
   private
@@ -39,3 +40,4 @@ class Api::GamesController < ApplicationController
   def update_params
     params.permit(:roll_score)
   end
+end

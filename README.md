@@ -19,11 +19,13 @@ To run the application:
 
 Alternatively, there is a Demo currently live at [Heroku](https://polar-wave-42779.herokuapp.com) where you can address calls to the API directly.
 
+---
+
 # API Documentation
 
 Endpoints:
 
-- POST `/api/games`
+## POST `/api/games`
 
 Creates a new game, and returns its ID for easier initial reference.
 
@@ -33,9 +35,7 @@ Creates a new game, and returns its ID for easier initial reference.
 }
 ```
 
-Response: `HTTP 201 Created`
-
-- GET `/api/games/:id`
+## GET `/api/games/:id`
 
 Show details about a game by its `id`. Will return `id`, `score`, `frames`, `current_frame`, `last_roll_score`:
 
@@ -100,13 +100,13 @@ Show details about a game by its `id`. Will return `id`, `score`, `frames`, `cur
 }
 ```
 
-response: `HTTP OK 200`
+__Response__: `HTTP OK 200`
 
-- PUT/PATCH `/api/games/:id?roll_score=5`
+## PUT/PATCH `/api/games/:id?roll_score=:integer`
 
-Adds score to the frame, and updates the game score.
+Adds score to the frame, and updates the game score. The `roll_score` value must be an integer between 0 and 10.
 
-response: `HTTP 204 No Content`
+__Response__: `HTTP 204 No Content`
 
 In case of erratic input, the following errors should be displayed:
 

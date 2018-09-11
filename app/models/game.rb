@@ -1,6 +1,4 @@
 class Game < ApplicationRecord
-  validates :score, format: { with: /\A\d+\z/, message: "Integer only. No signs allowed." }
-
   after_create :initialize_frames
 
   def initialize_frames
@@ -22,6 +20,41 @@ class Game < ApplicationRecord
     add_to_overall_score(throw_score)
   end
 
+  def add_score_to_frame(throw_score)
+    validate(throw_score)
+    increase_throw_counter
+
+    if last_frame_spare_or_strike(current_frame)
+      current_frame[2] = throw_score.to_i
+    end
+
+    if empty?(current_frame)
+      current_frame[0] = throw_score.to_i
+      increase_throw_counter if current_frame[0].to_i == 10
+    elsif current_frame != self.frames[9]
+      check_for_invalid_second_throw_score(throw_score)
+      current_frame[1] = throw_score.to_i
+    else
+      current_frame[1].present? ? current_frame[2] = throw_score.to_i : current_frame[1] = throw_score.to_i
+    end
+
+    update_previous_frames(throw_score)
+  end
+
+  def check_for_invalid_second_throw_score(throw_score)
+    if throw_score.to_i > 10 - current_frame[0].to_i
+      self.throw_counter = 1
+      self.save
+
+      raise(PinsExceedValidAmountError, "Pin number cannot exceed #{10 - current_frame[0].to_i}")
+    end
+  end
+
+  def add_to_overall_score(throw_score)
+    self.score = self.frames.flatten.compact.map{|el| el.to_i }.sum
+    self.save
+  end
+
   def increase_throw_counter
     if self.throw_counter == 2
       self.throw_counter = 1
@@ -37,6 +70,26 @@ class Game < ApplicationRecord
     self.save
   end
 
+  def last_frame_spare_or_strike(frame)
+    last_frame? && frame[1].present? && (strike?(frame) || spare?(frame))
+  end
+
+  def update_previous_frames(throw_score)
+    if previous_frame.any? && strike?(previous_frame)
+      previous_frame[1].nil? ? previous_frame[1] = throw_score.to_i : (previous_frame[2] = throw_score.to_i unless current_frame[2].present?)
+    end
+    if previous_frame.any? && spare?(previous_frame)
+      update_score_if_applicable_for(previous_frame, throw_score)
+    end
+    if two_frames_ago.any? && strike?(two_frames_ago) && strike?(previous_frame)
+      update_score_if_applicable_for(two_frames_ago, throw_score)
+    end
+  end
+
+  def update_score_if_applicable_for(frame, throw_score)
+    frame[2] = throw_score.to_i unless current_frame[1].present?
+  end
+
   def current_frame
     self.frames[frame_counter]
   end
@@ -47,59 +100,6 @@ class Game < ApplicationRecord
 
   def two_frames_ago
     self.frames[frame_counter-2]
-  end
-
-  def add_score_to_frame(throw_score)
-    validate(throw_score)
-    increase_throw_counter
-
-    # extract all last frame calculations to a separate method
-    if last_frame_spare_or_strike(current_frame)
-      current_frame[2] = throw_score.to_i
-    end
-
-    if empty?(current_frame)
-      current_frame[0] = throw_score.to_i
-      if current_frame[0].to_i == 10
-        increase_throw_counter
-      end
-    elsif current_frame != self.frames[9]
-      if throw_score.to_i > 10 - current_frame[0].to_i
-        self.throw_counter = 1
-        self.save
-
-        raise(PinsExceedValidAmountError, "Pin number cannot exceed #{10 - current_frame[0].to_i}")
-      end
-      current_frame[1] = throw_score.to_i
-    else
-      if current_frame[1].present?
-        current_frame[2] = throw_score.to_i
-      else
-        current_frame[1] = throw_score.to_i
-      end
-    end
-
-    update_previous_frames(throw_score)
-  end
-
-  def update_previous_frames(throw_score)
-    if previous_frame.any? && strike?(previous_frame)
-      if previous_frame[1].nil?
-        previous_frame[1] = throw_score.to_i
-      else
-        previous_frame[2] = throw_score.to_i unless current_frame[2].present?
-      end
-    end
-    if previous_frame.any? && spare?(previous_frame)
-      previous_frame[2] = throw_score.to_i unless current_frame[1].present?
-    end
-    if two_frames_ago.any? && strike?(two_frames_ago) && strike?(previous_frame)
-      two_frames_ago[2] = throw_score.to_i unless current_frame[1].present?
-    end
-  end
-
-  def last_frame_spare_or_strike(frame)
-    last_frame? && frame[1].present? && (strike?(frame) || spare?(frame))
   end
 
   def empty?(frame)
@@ -116,11 +116,6 @@ class Game < ApplicationRecord
 
   def spare?(frame)
     frame[0].to_i + frame[1].to_i == 10
-  end
-
-  def add_to_overall_score(throw_score)
-    self.score = self.frames.flatten.compact.map{|el| el.to_i }.sum
-    self.save
   end
 
   def game_over?
