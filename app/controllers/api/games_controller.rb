@@ -11,7 +11,7 @@ class Api::GamesController < ApplicationController
       id: @game.id,
       score: @game.score,
       frames: @game.frames,
-      last_frame: @game.frame_counter,
+      current_frame: @game.frame_counter+1,
       last_roll_score: @game.roll_score
     }
 
